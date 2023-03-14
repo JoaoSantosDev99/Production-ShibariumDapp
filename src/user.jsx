@@ -2,8 +2,9 @@ import NFTUserItem from "./components/UI/NFTUserItem";
 import down from "./assets/down.png";
 import connect from "./assets/plug.png";
 import profile from "./assets/profile.png";
+import sleep from "./assets/sleep.png";
 import { useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { addressShortener } from "./utils";
 import { ethers } from "ethers";
 import tokenContractAbi from "./contracts/tokens_abi.json";
@@ -18,9 +19,11 @@ const User = () => {
   const [tokenBalance, setTokenBalance] = useState("Loading");
   const [userNfts, setUserNfts] = useState();
   const [primaryDomainState, setPrimaryDomainState] = useState(false);
-  const [loadingState, setLoadingState] = useState(true);
+  const [loadingState, setLoadingState] = useState(false);
 
+  const { chain } = useNetwork();
   const { data: signer } = useSigner();
+  const { switchNetwork } = useSwitchNetwork();
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth"
@@ -63,6 +66,7 @@ const User = () => {
 
     const fetchUserNfts = async () => {
       if (!isConnected) return;
+      setLoadingState(true);
 
       // 0x689f654f452cbe147e870d290f84e6ad479f48a0;
       const nfts = await getNFTsByAddress(address);
@@ -85,14 +89,25 @@ const User = () => {
     getBalance();
     fetchUserNfts();
     fetchPrimaryDomain();
-  }, []);
+  }, [isConnected]);
 
   const changePrimary = async (e) => {
     if (!isConnected) return;
 
-    const newDomain = e.target.textContent.replace(".inu", "");
-    const changePrimaryDomain = writeNftContract.setPrimaryDomain(newDomain);
-    await changePrimaryDomain.wait();
+    if (chain?.id !== 1) {
+      switchNetwork?.(1);
+    }
+
+    try {
+      const newDomain = e.target.textContent.replace(".inu", "");
+      const changePrimaryDomain = await writeNftContract.setPrimaryDomain(
+        newDomain
+      );
+
+      await changePrimaryDomain.wait();
+    } catch (error) {
+      console.log(error);
+    }
 
     setPrimaryDomain(e.target.textContent);
   };
@@ -105,7 +120,7 @@ const User = () => {
           <div className="flex flex-wrap justify-center items-center gap-4">
             {/* Avatar */}
             <div className="w-36 p-2 h-36 rounded-xl bg-[#fef0bc] border-2 border-[#8B6E48]">
-              <img src={profile} alt="" />
+              <img src={isConnected ? profile : sleep} alt="" />
             </div>
 
             {/* Data */}
@@ -220,8 +235,13 @@ const User = () => {
           Your Domains
         </h2>
         <ul className="flex sm:p-2 mb-10 flex-wrap gap-4 justify-center max-w-7xl w-full">
-          <div className="my-10">{loadingState && <Loading />}</div>
-          {userNfts?.length === 0 && <h2>You have no nfts</h2>}
+          <>{loadingState && <Loading />}</>
+          {!isConnected ? (
+            <h2>Please, connect to show your NFTs</h2>
+          ) : (
+            userNfts?.length === 0 && <h2>You have no nfts</h2>
+          )}
+
           {userNfts?.map((nft) => (
             <a
               key={nft.tokenId}

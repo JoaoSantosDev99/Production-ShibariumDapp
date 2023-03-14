@@ -17,8 +17,8 @@ const Header = () => {
   const { address, isConnected } = useAccount();
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 1) {
+      switchNetwork?.(1);
     }
     try {
       open();

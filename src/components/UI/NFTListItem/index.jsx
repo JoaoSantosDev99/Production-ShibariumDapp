@@ -1,5 +1,4 @@
-import tag from "../../../assets/tag.png";
-import SaveImage from "../NftSvg/test";
+import SaveImage from "../NftSvg/svgGenerator";
 
 const NFTListItem = ({ domain, id }) => {
   const svg = SaveImage(domain.replace(".inu", ""));
@@ -11,7 +10,7 @@ const NFTListItem = ({ domain, id }) => {
         <img
           src={`data:image/svg+xml;base64,${base64Data}`}
           alt=""
-          className="w-36 h-24 transition-all ease-in-out duration-300 hover:rotate-[6deg] scale-100 hover:scale-110 sm:w-56 sm:h-44 rounded-t-xl"
+          className="w-40  transition-all ease-in-out duration-300 hover:rotate-[6deg] scale-100 hover:scale-110 sm:w-52 rounded-t-xl"
         />
       </div>
 

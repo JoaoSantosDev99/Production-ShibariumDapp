@@ -36,7 +36,7 @@ function App() {
           <button
             onClick={scrollToTop}
             title="back to top"
-            className="fixed border-2 bg-[#FFF3C6] border-[#8B6E48] right-2 bottom-24 md:right-10 md:bottom-10 p-2 rounded-xl"
+            className="fixed z-10 border-2 bg-[#FFF3C6] border-[#8B6E48] right-2 bottom-24 md:right-10 md:bottom-10 p-2 rounded-xl"
           >
             <img src={top} alt="paw" className="w-10 md:w-12" />
           </button>

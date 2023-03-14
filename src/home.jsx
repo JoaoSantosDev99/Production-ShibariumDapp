@@ -5,21 +5,21 @@ import food from "./assets/food.png";
 import home from "./assets/home.png";
 import colar from "./assets/collar.png";
 import Loading from "./components/UI/Loading";
-
-const { getAllNFTs } = require("sns-namechecker");
+import axios from "axios";
 
 const Home = () => {
-  const [filterActive, setFilterActive] = useState(false);
   const [inputText, setInputText] = useState("");
   const [allNfts, setAllNfts] = useState([]);
   const [itemsLimit, setItemsLimit] = useState(20);
-  const [loadingState, setLoadingState] = useState(true);
+  const [loadingState, setLoadingState] = useState(false);
 
   useEffect(() => {
     const fetchAllNfts = async () => {
-      const allNfts = await getAllNFTs();
-      const formatedData = JSON.parse(allNfts);
-      setAllNfts(formatedData.nfts);
+      setLoadingState(true);
+
+      const response = await axios.get("https://sns-server.onrender.com/nfts");
+      setAllNfts(response.data.nfts.reverse());
+
       setLoadingState(false);
     };
 
@@ -27,7 +27,12 @@ const Home = () => {
   }, []);
 
   const handleAdditionalItems = () => {
-    setItemsLimit((prevState) => prevState + 20);
+    setLoadingState(true);
+
+    setTimeout(() => {
+      setLoadingState(false);
+      setItemsLimit((prevState) => prevState + 20);
+    }, 1000);
   };
 
   const handleInputText = (e) => {
@@ -38,8 +43,6 @@ const Home = () => {
         .toLowerCase()
         .trim()
     );
-
-    setFilterActive(inputText !== "");
   };
 
   return (
@@ -138,12 +141,13 @@ const Home = () => {
             </a>
           ))}
         </ul>
+
         {allNfts?.length > itemsLimit && (
           <button
             onClick={handleAdditionalItems}
             className="flex px-3 py-2 text-xl mb-10 sm:mb-20 rounded-lg justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2"
           >
-            Show more
+            {loadingState ? "Loading..." : "Show more"}
           </button>
         )}
       </div>
