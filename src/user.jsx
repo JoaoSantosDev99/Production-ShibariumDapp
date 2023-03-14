@@ -9,14 +9,16 @@ import { ethers } from "ethers";
 import tokenContractAbi from "./contracts/tokens_abi.json";
 import nftConrtactAbi from "./contracts/nft_abi.json";
 import DomainOption from "./components/UI/SelectPrimaryDomain";
+import Loading from "./components/UI/Loading";
 const { getNFTsByAddress } = require("sns-namechecker");
 
 const User = () => {
   const { address, isConnected } = useAccount();
-  const [primary, setprimary] = useState("cryptodaddy.inu");
-  const [tokenBalance, setTokenBalance] = useState();
+  const [primaryDomain, setPrimaryDomain] = useState("Primary Domain");
+  const [tokenBalance, setTokenBalance] = useState("Loading");
   const [userNfts, setUserNfts] = useState();
-  const [primaryDomain, setPrimaryDomain] = useState();
+  const [primaryDomainState, setPrimaryDomainState] = useState(false);
+  const [loadingState, setLoadingState] = useState(true);
 
   const { data: signer } = useSigner();
 
@@ -42,38 +44,57 @@ const User = () => {
     signer
   );
 
-  useEffect(() => {
-    // const getBalance = async () => {
-    //   const balance = await readTokenContract.balanceOf(address);
-    //   const formatedBalance = ethers.utils.formatUnits(balance, 18);
+  const readNftContract = new ethers.Contract(
+    nftContractAddress,
+    nftAbi,
+    staticProvider
+  );
 
-    //   setTokenBalance(
-    //     Number(Number(formatedBalance).toFixed(0)).toLocaleString()
-    //   );
-    // };
+  useEffect(() => {
+    const getBalance = async () => {
+      if (!isConnected) return;
+      const balance = await readTokenContract.balanceOf(address);
+      const formatedBalance = ethers.utils.formatUnits(balance, 18);
+
+      setTokenBalance(
+        Number(Number(formatedBalance).toFixed(0)).toLocaleString()
+      );
+    };
 
     const fetchUserNfts = async () => {
-      const nfts = await getNFTsByAddress(
-        "0x689f654f452cbe147e870d290f84e6ad479f48a0"
-      );
+      if (!isConnected) return;
 
-      setUserNfts(nfts);
+      // 0x689f654f452cbe147e870d290f84e6ad479f48a0;
+      const nfts = await getNFTsByAddress(address);
+      // const nfts = await getNFTsByAddress(
+      //   "0x689f654f452cbe147e870d290f84e6ad479f48a0"
+      // );
+      const formatedData = JSON.parse(nfts);
+
+      setUserNfts(formatedData);
+      setLoadingState(false);
     };
 
     const fetchPrimaryDomain = async () => {
-      const primaryFetch = await writeNftContract.getPrimaryDomain(
-        "0x689f654f452cbe147e870d290f84e6ad479f48a0"
-      );
-      console.log("primaryFetch");
+      if (!isConnected) return;
+
+      const primaryFetch = await readNftContract.getPrimaryDomain(address);
+      setPrimaryDomainState(primaryFetch !== ".inu");
     };
 
-    // getBalance();
+    getBalance();
     fetchUserNfts();
-    // fetchPrimaryDomain();
+    fetchPrimaryDomain();
   }, []);
 
-  const changePrimary = (e) => {
-    setprimary(e.target.textContent);
+  const changePrimary = async (e) => {
+    if (!isConnected) return;
+
+    const newDomain = e.target.textContent.replace(".inu", "");
+    const changePrimaryDomain = writeNftContract.setPrimaryDomain(newDomain);
+    await changePrimaryDomain.wait();
+
+    setPrimaryDomain(e.target.textContent);
   };
 
   return (
@@ -88,18 +109,17 @@ const User = () => {
             </div>
 
             {/* Data */}
-            {false ? (
+            {isConnected ? (
               <ul className="flex justify-center text-[#78572d] border-2 border-[#8B6E48] bg-[#fef0bc] w-[350px] h-36 flex-col text-center sm:text-start text-lg sm:text-xl font-bold p-3 rounded-xl">
-                <li>Name: Crypto Daddy (demo)</li>
+                <li>Name: ( not set )</li>
+                <li>Address: {addressShortener(address)}</li>
                 <li>
-                  Address:{" "}
-                  {isConnected
-                    ? addressShortener(address)
-                    : "0x322..sdf2 (demo)"}
+                  {primaryDomainState
+                    ? `Primary: ${primaryDomain}`
+                    : "Primary domain: ( not set )"}
                 </li>
-                <li>Primary: {primary}</li>
                 <li>
-                  SNS Balance: {isConnected ? tokenBalance : "100.000 (demo)"}
+                  $SNS Balance: {isConnected ? tokenBalance : "100.000 (demo)"}
                 </li>
               </ul>
             ) : (
@@ -120,36 +140,48 @@ const User = () => {
               </h3>
 
               {/* Dropdown */}
-              {true ? (
+              {isConnected ? (
                 <div className="flex justify-center w-full">
                   <div className="w-[90%]">
                     <div className="relative" data-te-dropdown-ref>
                       <button
-                        className="gap-2 w-full px-4 bg-[#FFECA7] font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
+                        className=" w-full px-4 bg-[#FFECA7] font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
                         data-te-dropdown-toggle-ref
                       >
-                        {primary}
-                        <img src={down} alt="down" className="w-5" />
+                        {false ? (
+                          <div className="flex justify-center items-center gap-2">
+                            {"Domain"}
+                            <img src={down} alt="down" className="w-5" />
+                          </div>
+                        ) : (
+                          "No Primary Domain Set"
+                        )}
                       </button>
                       <ul
                         className="absolute w-full z-[1000] text-[#78572d] font-bold p-4 hidden list-none overflow-x-hidden overflow-scroll max-h-[400px] rounded-lg border-none bg-[#FFECA7] shadow-lg [&[data-te-dropdown-show]]:block"
                         aria-labelledby="dropdownMenu"
                         data-te-dropdown-menu-ref
                       >
-                        {userNfts?.map((item) => (
-                          <DomainOption
-                            onClick={changePrimary}
-                            domain={item.title}
-                            key={item.tokenId}
-                          />
-                        ))}
+                        {userNfts?.length !== 0 ? (
+                          userNfts?.map((item) => (
+                            <DomainOption
+                              onClick={changePrimary}
+                              domain={item.title}
+                              key={item.tokenId}
+                            />
+                          ))
+                        ) : (
+                          <li className="text-center font-extrabold">
+                            You have no domains
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="gap-2 w-[90%] px-4 bg-[#FFECA7] font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl">
-                  Not available
+                  Not Connected
                   <img src={connect} alt="plug" className="w-5" />
                 </div>
               )}
@@ -188,6 +220,8 @@ const User = () => {
           Your Domains
         </h2>
         <ul className="flex sm:p-2 mb-10 flex-wrap gap-4 justify-center max-w-7xl w-full">
+          <div className="my-10">{loadingState && <Loading />}</div>
+          {userNfts?.length === 0 && <h2>You have no nfts</h2>}
           {userNfts?.map((nft) => (
             <a
               key={nft.tokenId}

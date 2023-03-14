@@ -4,22 +4,31 @@ import paw from "./assets/paw.png";
 import food from "./assets/food.png";
 import home from "./assets/home.png";
 import colar from "./assets/collar.png";
+import Loading from "./components/UI/Loading";
 
 const { getAllNFTs } = require("sns-namechecker");
 
 const Home = () => {
   const [filterActive, setFilterActive] = useState(false);
   const [inputText, setInputText] = useState("");
-  const [allNfts, setAllNfts] = useState();
+  const [allNfts, setAllNfts] = useState([]);
+  const [itemsLimit, setItemsLimit] = useState(20);
+  const [loadingState, setLoadingState] = useState(true);
 
   useEffect(() => {
     const fetchAllNfts = async () => {
       const allNfts = await getAllNFTs();
-      setAllNfts(allNfts);
+      const formatedData = JSON.parse(allNfts);
+      setAllNfts(formatedData.nfts);
+      setLoadingState(false);
     };
 
     fetchAllNfts();
   }, []);
+
+  const handleAdditionalItems = () => {
+    setItemsLimit((prevState) => prevState + 20);
+  };
 
   const handleInputText = (e) => {
     setInputText(
@@ -65,7 +74,13 @@ const Home = () => {
             className="bg-[#fff3c6] text-center text-xl font-bold placeholder:font-extrabold placeholder:text-[#cca575] placeholder:text-center text-[#82633b] rounded-xl w-full p-3 sm:p-5 italic outline-none border-[3px] border-[#be9867] mt-4"
           />
 
-          <ul className="bg-[#8b6e48] absolute top-20 sm:top-24 flex flex-col items-center py-4 w-full rounded-xl mt-2 text-xl text-black text-center">
+          <ul className="bg-[#8b6e48] max-h-96 overflow-x-hidden  absolute z-10 top-20 sm:top-24 flex flex-col items-center py-4 w-full rounded-xl mt-2 text-xl text-black text-center">
+            {!allNfts && (
+              <div className="flex justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2">
+                Every dog needs a name
+                <img src={paw} alt="dog-tag" className="w-6" />
+              </div>
+            )}
             {allNfts
               ?.filter((item) =>
                 item.name
@@ -110,7 +125,8 @@ const Home = () => {
           Check out the latest domains created
         </h2>
         <ul className="flex sm:px-2 flex-wrap py-10 md:py-20 gap-2 sm:gap-4 justify-center max-w-7xl w-full">
-          {allNfts?.map((item) => (
+          {loadingState && <Loading />}
+          {allNfts?.slice(0, itemsLimit).map((item) => (
             <a
               className="flex text-sm md:text-lg text-[#FEE8CB] font-bold justify-center items-center gap-2"
               href={`https://opensea.io/assets/ethereum/0x56212890b11f448a0c689747a2e74c051ca4f028/${item.tokenId}`}
@@ -122,6 +138,14 @@ const Home = () => {
             </a>
           ))}
         </ul>
+        {allNfts?.length > itemsLimit && (
+          <button
+            onClick={handleAdditionalItems}
+            className="flex px-3 py-2 text-xl mb-10 sm:mb-20 rounded-lg justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2"
+          >
+            Show more
+          </button>
+        )}
       </div>
     </section>
   );
