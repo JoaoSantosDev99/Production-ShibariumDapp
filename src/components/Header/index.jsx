@@ -30,7 +30,7 @@ const Header = () => {
     <header className="w-full flex justify-center pt-1 px-1">
       <div className="max-w-screen-2xl w-full p-2 rounded-xl bg-[#A48253]">
         {/* Desktop header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap justify-between items-center">
           <div className="flex gap-4">
             <h1 className="text-4xl">
               <img src={Logo} alt="logo" className="w-52" />

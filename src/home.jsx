@@ -56,7 +56,7 @@ const Home = () => {
               alt="group-of-dogs"
               className="max-w-[900px] w-full"
             />
-            <p className="max-w-lg sm:w-full text-[#78572d] font-semibold text-xl text-center">
+            <p className="max-w-xl sm:w-full text-[#78572d] font-semibold text-2xl text-center">
               Every .inu domain represents your wallet so you can receive
               crypto, NFTs and just about anything else in the Shibarium
               Metaverse

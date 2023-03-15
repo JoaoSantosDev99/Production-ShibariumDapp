@@ -16,6 +16,12 @@ body {
   font-family: "Noto Sans JP", sans-serif;
 }
 
+body.swal-confirm-button {
+  box-shadow: none;
+  outline: none;
+  border: none;
+}
+
 ::selection {
   color: rgb(101, 72, 50);
   background-color: rgb(202, 165, 105);

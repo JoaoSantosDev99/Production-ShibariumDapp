@@ -13,6 +13,7 @@ import DomainOption from "./components/UI/SelectPrimaryDomain";
 import Loading from "./components/UI/Loading";
 import sadDog from "./assets/saddog.png";
 import redirect from "./assets/redirect.png";
+import Swal from "sweetalert2";
 
 import cool from "./assets/avatars/cool.png";
 import evil from "./assets/avatars/evil.png";
@@ -24,8 +25,8 @@ const { getNFTsByAddress } = require("sns-namechecker");
 
 const User = () => {
   const { address, isConnected } = useAccount();
-  const [primaryDomain, setPrimaryDomain] = useState("Primary Domain");
-  const [tokenBalance, setTokenBalance] = useState("Loading");
+  const [primaryDomain, setPrimaryDomain] = useState("Loading...");
+  const [tokenBalance, setTokenBalance] = useState("Loading...");
   const [userNfts, setUserNfts] = useState();
   const [primaryDomainState, setPrimaryDomainState] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
@@ -94,7 +95,15 @@ const User = () => {
       if (!isConnected) return;
 
       const primaryFetch = await readNftContract.getPrimaryDomain(address);
-      setPrimaryDomainState(primaryFetch !== ".inu");
+
+      if (primaryFetch !== ".inu") {
+        setPrimaryDomain(primaryFetch);
+        setPrimaryDomainState(true);
+        return;
+      }
+
+      setPrimaryDomainState(false);
+      setPrimaryDomain("Primary Domain Not Set");
     };
 
     setCurrentAvatar(Number(localStorage.getItem("avatarIndex")));
@@ -111,18 +120,32 @@ const User = () => {
       switchNetwork?.(1);
     }
 
+    if (e.target.textContent === primaryDomain) {
+      return Swal.fire({
+        title: "This is already your primary domain.",
+        color: "#A48253",
+        icon: "warning",
+        confirmButtonText: "Got it!",
+        background: "#FFECA7",
+        iconColor: "#A48253",
+        buttonsStyling: true,
+        confirmButtonColor: "#A48253",
+        showConfirmButton: false,
+        timer: 2500,
+      });
+    }
+
     try {
       const newDomain = e.target.textContent.replace(".inu", "");
       const changePrimaryDomain = await writeNftContract.setPrimaryDomain(
         newDomain
       );
 
-      await changePrimaryDomain.wait();
+      await changePrimaryDomain.wait(e.target.textContent);
+      setPrimaryDomain(e.target.textContent);
     } catch (error) {
       console.log(error);
     }
-
-    setPrimaryDomain(e.target.textContent);
   };
 
   const handleAvatarChange = () => {
@@ -158,13 +181,13 @@ const User = () => {
             {/* Data */}
             {isConnected ? (
               <ul className="flex justify-center text-[#78572d] border-2 border-[#8B6E48] bg-[#fef0bc] w-[350px] h-36 flex-col text-center sm:text-start text-lg sm:text-xl font-bold p-3 rounded-xl">
-                <li>Name: ( not set )</li>
-                <li>Address: {addressShortener(address)}</li>
                 <li>
                   {primaryDomainState
                     ? `Primary: ${primaryDomain}`
                     : "Primary domain: ( not set )"}
                 </li>
+                <li>Address: {addressShortener(address)}</li>
+                <li>E-mail: ( not set )</li>
                 <li>
                   $SNS Balance: {isConnected ? tokenBalance : "100.000 (demo)"}
                 </li>
@@ -195,13 +218,15 @@ const User = () => {
                         className=" w-full px-4 bg-[#FFECA7] font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
                         data-te-dropdown-toggle-ref
                       >
-                        {false ? (
+                        {primaryDomainState ? (
                           <div className="flex justify-center items-center gap-2">
-                            {"Domain"}
+                            {primaryDomain}
                             <img src={down} alt="down" className="w-5" />
                           </div>
                         ) : (
-                          "No Primary Domain Set"
+                          <div className="flex justify-center items-center gap-2">
+                            No Primary Domain Set
+                          </div>
                         )}
                       </button>
                       <ul
@@ -210,7 +235,7 @@ const User = () => {
                         data-te-dropdown-menu-ref
                       >
                         {userNfts?.length !== 0 ? (
-                          userNfts?.map((item) => (
+                          userNfts?.filter((item) => (
                             <DomainOption
                               onClick={changePrimary}
                               domain={item.title}
@@ -256,7 +281,7 @@ const User = () => {
                 rel="noreferrer"
               >
                 <button className="bg-[#FFECA7] font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl">
-                  Open Sea
+                  OpenSea
                 </button>
               </a>
             </div>
@@ -269,7 +294,7 @@ const User = () => {
         <ul className="flex sm:p-2 mb-10 flex-wrap gap-4 justify-center max-w-7xl w-full">
           <>{loadingState && <Loading />}</>
           {!isConnected ? (
-            <h2>Please, connect to show your NFTs</h2>
+            <h2>Connect wallet to show dogtags.</h2>
           ) : (
             userNfts?.length === 0 && (
               <div className="flex flex-col mb-28 items-center gap-2">
