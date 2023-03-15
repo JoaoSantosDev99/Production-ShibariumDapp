@@ -235,9 +235,10 @@ const User = () => {
                         data-te-dropdown-menu-ref
                       >
                         {userNfts?.length !== 0 ? (
-                          userNfts?.filter((item) => (
+                          userNfts?.map((item) => (
                             <DomainOption
                               onClick={changePrimary}
+                              id={item.tokenId}
                               domain={item.title}
                               key={item.tokenId}
                             />
