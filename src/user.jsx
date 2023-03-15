@@ -11,6 +11,15 @@ import tokenContractAbi from "./contracts/tokens_abi.json";
 import nftConrtactAbi from "./contracts/nft_abi.json";
 import DomainOption from "./components/UI/SelectPrimaryDomain";
 import Loading from "./components/UI/Loading";
+import sadDog from "./assets/saddog.png";
+import redirect from "./assets/redirect.png";
+
+import cool from "./assets/avatars/cool.png";
+import evil from "./assets/avatars/evil.png";
+import kiss from "./assets/avatars/kiss.png";
+import money from "./assets/avatars/money.png";
+import question from "./assets/avatars/question.png";
+
 const { getNFTsByAddress } = require("sns-namechecker");
 
 const User = () => {
@@ -20,6 +29,8 @@ const User = () => {
   const [userNfts, setUserNfts] = useState();
   const [primaryDomainState, setPrimaryDomainState] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
+  const [currentAvatar, setCurrentAvatar] = useState(0);
+  const profilePicturesArray = [profile, cool, evil, kiss, money, question];
 
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
@@ -86,6 +97,8 @@ const User = () => {
       setPrimaryDomainState(primaryFetch !== ".inu");
     };
 
+    setCurrentAvatar(Number(localStorage.getItem("avatarIndex")));
+
     getBalance();
     fetchUserNfts();
     fetchPrimaryDomain();
@@ -112,6 +125,16 @@ const User = () => {
     setPrimaryDomain(e.target.textContent);
   };
 
+  const handleAvatarChange = () => {
+    if (currentAvatar >= profilePicturesArray.length - 1) {
+      setCurrentAvatar(0);
+      window.localStorage.setItem("avatarIndex", "0");
+    } else {
+      window.localStorage.setItem("avatarIndex", currentAvatar + 1);
+      setCurrentAvatar((prevState) => (prevState += 1));
+    }
+  };
+
   return (
     <section className="w-full flex justify-center">
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
@@ -120,7 +143,16 @@ const User = () => {
           <div className="flex flex-wrap justify-center items-center gap-4">
             {/* Avatar */}
             <div className="w-36 p-2 h-36 rounded-xl bg-[#fef0bc] border-2 border-[#8B6E48]">
-              <img src={isConnected ? profile : sleep} alt="" />
+              {isConnected ? (
+                <img
+                  onClick={handleAvatarChange}
+                  src={profilePicturesArray[currentAvatar]}
+                  alt=""
+                  className="cursor-pointer"
+                />
+              ) : (
+                <img src={sleep} alt="" />
+              )}
             </div>
 
             {/* Data */}
@@ -239,7 +271,26 @@ const User = () => {
           {!isConnected ? (
             <h2>Please, connect to show your NFTs</h2>
           ) : (
-            userNfts?.length === 0 && <h2>You have no nfts</h2>
+            userNfts?.length === 0 && (
+              <div className="flex flex-col mb-28 items-center gap-2">
+                <div className="max-w-md flex flex-col items-center gap-2 font-bold border-[4px] bg-[#fff1c0] border-[#c29c66] p-10 text-4xl text-[#fff9e3] text-center rounded-xl">
+                  <img src={sadDog} alt="sad-dog" className="w-96" />
+                  <h2 className="text-[#A57F4B] text-xl sm:text-3xl font-extrabold">
+                    Sorry, you have no NFTs to display.
+                  </h2>
+                </div>
+                <a
+                  href="https://app.dogtag.id/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <button className="bg-[#FFECA7] max-w-xs font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center gap-3 items-center p-2 rounded-xl">
+                    Purchase Your First Domain
+                    <img src={redirect} alt="redirect" className="w-7" />
+                  </button>
+                </a>
+              </div>
+            )
           )}
 
           {userNfts?.map((nft) => (
