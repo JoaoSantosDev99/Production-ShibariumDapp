@@ -14,6 +14,7 @@ import Loading from "./components/UI/Loading";
 import sadDog from "./assets/saddog.png";
 import redirect from "./assets/redirect.png";
 import Swal from "sweetalert2";
+import disconnect from "./assets/disconnect.png";
 
 import cool from "./assets/avatars/cool.png";
 import evil from "./assets/avatars/evil.png";
@@ -288,14 +289,21 @@ const User = () => {
             </div>
           </div>
         </div>
+        {isConnected && (
+          <h2 className="flex text-[#78572d] text-4xl font-bold mb-10 mt-20 text-center">
+            Your Domains
+          </h2>
+        )}
 
-        <h2 className="flex text-[#78572d] text-4xl font-bold mb-10 mt-20 text-center">
-          Your Domains
-        </h2>
         <ul className="flex sm:p-2 mb-10 flex-wrap gap-4 justify-center max-w-7xl w-full">
           <>{loadingState && <Loading />}</>
           {!isConnected ? (
-            <h2>Connect wallet to show dogtags.</h2>
+            <div className="max-w-md mt-20 flex flex-col items-center gap-2 font-bold border-[4px] bg-[#fff1c0] border-[#c29c66] p-10 text-4xl text-[#fff9e3] text-center rounded-xl">
+              <img src={disconnect} alt="sad-dog" className="w-96" />
+              <h2 className="text-[#A57F4B] text-xl sm:text-3xl font-extrabold">
+                Connect to display your Dogtag Ids
+              </h2>
+            </div>
           ) : (
             userNfts?.length === 0 && (
               <div className="flex flex-col mb-28 items-center gap-2">
