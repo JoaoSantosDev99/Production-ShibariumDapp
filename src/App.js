@@ -8,10 +8,11 @@ import Home from "./home";
 import Swap from "./swap";
 import User from "./user";
 import top from "./assets/top.png";
+import Mint from "./mint";
 
 function App() {
   const [backTop, setBackTop] = useState(false);
-
+  const [inputReference, setinputReference] = useState("");
   useEffect(() => {
     const handleShadow = () => {
       if (window.scrollY >= 1200) {
@@ -43,7 +44,11 @@ function App() {
         )}
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home inputSetter={setinputReference} />} />
+          <Route
+            path="/mint"
+            element={<Mint inputReference={inputReference} />}
+          />
           <Route path="/swap" element={<Swap />} />
           <Route path="/user" element={<User />} />
         </Routes>

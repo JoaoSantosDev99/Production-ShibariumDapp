@@ -5,6 +5,7 @@ import { addressShortener } from "../../utils";
 
 import home from "../../assets/icons/home.png";
 import user from "../../assets/icons/user.png";
+import mint from "../../assets/icons/mint.png";
 import swap from "../../assets/icons/swap.png";
 import Logo from "../../assets/Logo.png";
 import ConnectButton from "../UI/ConnectButton";
@@ -32,11 +33,13 @@ const Header = () => {
         {/* Desktop header */}
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex gap-4">
-            <h1 className="text-4xl">
-              <img src={Logo} alt="logo" className="w-52" />
-            </h1>
+            <a href="/" target="_blank" rel="noreferrer">
+              <h1 className="text-4xl">
+                <img src={Logo} alt="logo" className="w-52" />
+              </h1>
+            </a>
 
-            <ul className="hidden md:flex items-center gap-2">
+            <ul className="hidden lg:flex items-center gap-2">
               <li>
                 <NavLink
                   to="/"
@@ -47,6 +50,19 @@ const Header = () => {
                   }
                 >
                   Home
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="/mint"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "py-2 px-5 text-[#482307] font-bold bg-[#ffeca7] border-2 border-[#ffeca7] shadow-md text-xl rounded-xl"
+                      : "py-2 px-5 text-[#482307] font-bold bg-[#fff3c6] border-2 border-[#fff3c6] shadow-md text-xl rounded-xl"
+                  }
+                >
+                  Mint
                 </NavLink>
               </li>
 
@@ -93,7 +109,7 @@ const Header = () => {
         </div>
 
         {/* Mobile Header */}
-        <nav className="flex items-center border border-t-[#d0b28a] py-3 shadow-2xl fixed md:hidden bg-[#FFF4CE] text-white z-10 bottom-0 right-0 left-0 justify-center gap-2 w-full">
+        <nav className="flex items-center border border-t-[#d0b28a] py-3 shadow-2xl fixed lg:hidden bg-[#FFF4CE] text-white z-50 bottom-0 right-0 left-0 justify-center gap-2 w-full">
           <ul className="flex justify-evenly w-full">
             <li>
               <NavLink
@@ -105,6 +121,19 @@ const Header = () => {
                 }
               >
                 <img src={home} alt="home" className="w-8" />
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/mint"
+                className={({ isActive }) =>
+                  isActive
+                    ? "bg-[#FFECA7] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
+                    : "flex justify-center items-center p-2 rounded"
+                }
+              >
+                <img src={mint} alt="mint" className="w-8" />
               </NavLink>
             </li>
             <li>

@@ -1,4 +1,4 @@
-import NFTUserItem from "./components/UI/NFTUserItem";
+import NFTListItem from "./components/UI/NFTListItem";
 import down from "./assets/down.png";
 import connect from "./assets/plug.png";
 import profile from "./assets/profile.png";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { addressShortener } from "./utils";
 import { ethers } from "ethers";
-import tokenContractAbi from "./contracts/tokens_abi.json";
+import tokenContractAbi from "./contracts/token_abi.json";
 import nftConrtactAbi from "./contracts/nft_abi.json";
 import DomainOption from "./components/UI/SelectPrimaryDomain";
 import Loading from "./components/UI/Loading";
@@ -335,7 +335,7 @@ const User = () => {
               target="_blank"
               rel="noreferrer"
             >
-              <NFTUserItem
+              <NFTListItem
                 domain={nft.title}
                 id={nft.tokenId}
                 image={nft.image}

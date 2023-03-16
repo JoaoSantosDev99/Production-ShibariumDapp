@@ -5,9 +5,11 @@ import food from "./assets/food.png";
 import home from "./assets/home.png";
 import colar from "./assets/collar.png";
 import Loading from "./components/UI/Loading";
+import redirect from "./assets/redirect2.png";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
-const Home = () => {
+const Home = ({ inputSetter }) => {
   const [inputText, setInputText] = useState("");
   const [allNfts, setAllNfts] = useState([]);
   const [itemsLimit, setItemsLimit] = useState(20);
@@ -33,6 +35,9 @@ const Home = () => {
       setLoadingState(false);
       setItemsLimit((prevState) => prevState + 20);
     }, 1000);
+  };
+  const inputReferenceHandler = () => {
+    inputSetter(inputText);
   };
 
   const handleInputText = (e) => {
@@ -68,6 +73,8 @@ const Home = () => {
         <h2 className="text-[#78572d] text-center text-2xl md:text-3xl mt-28 font-bold">
           Looking for a specific domain?
         </h2>
+
+        {/* Input */}
         <div className="w-full relative flex flex-col items-center max-w-lg">
           <input
             value={inputText}
@@ -78,12 +85,50 @@ const Home = () => {
           />
 
           <ul className="bg-[#8b6e48] max-h-96 overflow-x-hidden  absolute z-10 top-20 sm:top-24 flex flex-col items-center py-4 w-full rounded-xl mt-2 text-xl text-black text-center">
+            {/* Mint conditions */}
+            {inputText !== "" &&
+              allNfts?.filter((item) =>
+                item.name
+                  .replace(".inu", "")
+                  .includes(inputText || inputText === "")
+              ).length !== 0 &&
+              !allNfts
+                ?.filter((item) =>
+                  item.name
+                    .replace(".inu", "")
+                    .includes(inputText || inputText === "")
+                )
+                .map((item) => item.name !== inputText)
+                .includes(false) && (
+                <div className="flex w-[90%] rounded-lg py-2 bg-[#A5855C] mb-3 flex-col items-center">
+                  <h2 className="flex italic mb-2 text-lg sm:text-xl justify-center text-[#ffedd5] items-center font-extrabold gap-2">
+                    {inputText}.inu
+                  </h2>
+                  <h2 className="flex mb-2 text-lg sm:text-xl justify-center text-[#FEE8CB] items-center font-bold gap-2">
+                    <p>Is currently available!</p>
+                  </h2>
+
+                  <Link to="/mint">
+                    <button
+                      onClick={inputReferenceHandler}
+                      className="bg-[#FFECA7] gap-2 text-sm font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
+                    >
+                      Mint right here!
+                      <img src={redirect} alt="redirect" className="w-5" />
+                    </button>
+                  </Link>
+                </div>
+              )}
+
+            {/* First State */}
             {!allNfts && (
               <div className="flex justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2">
                 Every dog needs a name
                 <img src={paw} alt="dog-tag" className="w-6" />
               </div>
             )}
+
+            {/*Simple Live filter */}
             {allNfts
               ?.filter((item) =>
                 item.name
@@ -116,14 +161,39 @@ const Home = () => {
                 <img src={paw} alt="dog-tag" className="w-6" />
               </div>
             ) : (
-              <h2 className="flex text-lg sm:text-xl justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2">
-                This domain is currently available!
-                <img src={colar} alt="redirect" className="w-7" />
-              </h2>
+              <div className="flex flex-col items-center">
+                <h2 className="flex italic mb-2 text-lg sm:text-xl justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2">
+                  "{inputText}.inu"
+                </h2>
+                <h2 className="flex mb-5 text-lg sm:text-xl justify-center bg-[#8b6e48] text-[#FEE8CB] items-center font-bold gap-2">
+                  <p>Is currently available!</p>
+
+                  <img src={colar} alt="redirect" className="w-7" />
+                </h2>
+
+                <Link to="/mint">
+                  <button
+                    onClick={inputReferenceHandler}
+                    className="bg-[#FFECA7] gap-2 text-sm font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl"
+                  >
+                    Mint right here!
+                    <img src={redirect} alt="redirect" className="w-5" />
+                  </button>
+                </Link>
+              </div>
             )}
           </ul>
         </div>
 
+        {/* new domain */}
+        <Link to="/mint" className="mt-20">
+          <button className="bg-[#FFECA7] gap-2 text-sm font-bold text-[#78572d] border-2 border-[#c8a475] flex justify-center items-center p-2 rounded-xl">
+            Mint New Domain
+            <img src={redirect} alt="redirect" className="w-5" />
+          </button>
+        </Link>
+
+        {/* All nfts */}
         <h2 className="text-3xl md:text-[45px] font-bold text-center text-[#78572d] mb-3 sm:mb-10 mt-28 md:mt-36">
           Check out the latest domains created
         </h2>
